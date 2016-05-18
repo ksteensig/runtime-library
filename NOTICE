@@ -1,0 +1,5 @@
+Credit to:
+
+Russ Cox(https://swtch.com/~rsc/) for his original work on libtask,
+Jamie Turner(https://github.com/jamwt) for further work on libtask,
+and Jimmi Christensen(https://github.com/Hejsil/c-threading) for the queue library
