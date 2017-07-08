@@ -1,5 +1,5 @@
-# runtime-library
-This is a round-robin scheduled, co-operative, M:N thread library written in C.
+# Run-time Library
+**This is a round-robin scheduled, co-operative, M:N thread library written in C.**
 
 * Round-robin: Each thread is served as first come first served.
 * co-operative: Tasks have to yield themselves, they are not preemptive scheduled.
@@ -22,8 +22,8 @@ The second function is *taskalloc*, which takes an additional argument. The two 
 **IMPORTANT: the argument that the procedure actually gets when run is the task itself. But the task has a member which is the *arg* given to *taskcreate* or *taskalloc*.
 
 ```c
-task_t *taskcreate(void (*fn)(void*), void *arg)
-task_t *taskalloc(void (*fn)(void*), void *arg, uint stack)
+task_t *taskcreate(void (*fn)(void*), void *arg);
+task_t *taskalloc(void (*fn)(void*), void *arg, uint stack);
 ```
 
 The task has the following structure. So the argument that the procedure actually gets is an instance of this task handle. The *arg* passed to *taskcreate* or *taskalloc* is the member *startarg*.
@@ -45,13 +45,13 @@ typedef struct task_s {
 The reason that the task handle is what's given to the procedure rather than the actual argument is because the task uses its identity to do a context switch (the tasks cooperatively scheduled). To do a context switch the procedure *taskyield* is used. The only parameter is the task which should yield.
 
 ```c
-void taskyield(task_t *t)
+void taskyield(task_t *t);
 ```
 
 To create a subtask you just use *taskcreate* or *taskalloc* and then use the procedure *subtaskadd*. It takes two arguments where the first is the task creating the subtask and the second is the subtask itself. This has to be used as the scheduler needs to know when all subtasks are done before it can safely deallocate subtasks.
 
 ```c
-void subtaskadd(task_t *parent, task_t *subtask)
+void subtaskadd(task_t *parent, task_t *subtask);
 ```
 
 And then finally to exit a task the procedure *taskexit* is used. This only takes one argument which is the task which should exit. *taskexit* deallocates the stack of the subtasks and the task itself.
@@ -62,6 +62,54 @@ void taskexit(task_t *t);
 
 ## Example
 
-```c
+In this example I create a task to add two numbers, which creates a subtask to negate the first number, before adding the two numbers.
 
+```c
+typedef struct numbers_s {
+    int a;
+    int b;
+    int res;
+} numbers_t;
+
+// negate a
+void *neg_a(task_t *task) {
+    numbers_t *args = (numbers_t *)task->startarg;
+
+    args->a *= -1;
+
+    taskexit(task);
+}
+
+// add a and b
+void *add(task_t *task) {
+    numbers_t *args = (numbers_t *)task->startarg;
+
+    task_t *subtask = taskcreate(neg_a, task->startarg);
+    subtaskadd(task, sub_neg_a);
+    taskyield(task);
+
+    // a has been negated at this point because neg_a has been run
+    // add a and b and put into res
+    args->res = args->a + args->b;
+
+    // exit task
+    taskexit(task);
+}
+
+void main() {
+    number_t *ns = malloc(sizeof(numbers_t));
+
+    ns->a = 5;
+    ns->b = 2;
+
+    task_t *initial = taskcreate(add, (void *)ns);
+
+    rmain(2, initial);
+
+    // should print -3
+    printf("%d\n", ns->res);
+
+    // we still have to manually free arguments
+    free(ns);
+}
 ```
