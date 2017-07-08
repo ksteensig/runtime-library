@@ -17,6 +17,7 @@ void rmain(uint64_t os_thread_count, task_t *initial)
 
 To create a task there are two different functions that can be used. The first one is *taskcreate* which takes to arguments. The first argument is a function pointer to the procedure which the task should run. The second argument is a void pointer to the argument for the procedure. There can only be given one argument, so if you wish to pass multiple values to the procedure, then you have to wrap them in a struct. The procedure cannot return any values either, so the struct wrapping the parameters also has to be used for output parameters of the procedure.
 
+The second function is *taskalloc*, which takes an additional argument. The two first arguments are the same as *taskcreate*, but the third argument is used to tell how big the stack of the procedure should be. Bear in mind this is a static number which the system doesn't dynamically increase on run-time. *taskcreate* just calls *taskalloc* with a fixed number as the stack. So for the best experience *taskalloc* should be used.
 
 ```c
 task_t *taskcreate(void (*fn)(void*), void *arg)
