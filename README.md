@@ -19,7 +19,7 @@ To create a task there are two different functions that can be used. The first o
 
 The second function is *taskalloc*, which takes an additional argument. The two first arguments are the same as *taskcreate*, but the third argument is used to tell how big the stack of the procedure should be. **Bear in mind this is a static number which the system doesn't dynamically increase on run-time.** *taskcreate* _just_ calls *taskalloc* with a fixed number as the stack. So for the best experience *taskalloc* should be used.
 
-**IMPORTANT: the argument that the procedure actually gets when run is the task itself. But the task has a member which is the *arg* given to *taskcreate* or *taskalloc*.
+**IMPORTANT: the argument that the procedure actually gets when run is the task itself. But the task has a member which is the *arg* given to *taskcreate* or *taskalloc*.**
 
 ```c
 task_t *taskcreate(void (*fn)(void*), void *arg);
