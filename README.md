@@ -15,11 +15,16 @@ The library has an entry procedure called *rmain* for _run-time main_. *rmain* t
 void rmain(uint64_t os_thread_count, task_t *initial)
 ```
 
+To create a task there are two different functions that can be used. The first one is *taskcreate* which takes to arguments. The first argument is a function pointer to the procedure which the task should run. The second argument is a void pointer to the argument for the procedure. There can only be given one argument, so if you wish to pass multiple values to the procedure, then you have to wrap them in a struct. The procedure cannot return any values either, so the struct wrapping the parameters also has to be used for output parameters of the procedure.
+
 
 ```c
-
+task_t *taskcreate(void (*fn)(void*), void *arg)
+task_t *taskalloc(void (*fn)(void*), void *arg, uint stack)
 ```
 
 ```c
 
 ```
+
+## Example
